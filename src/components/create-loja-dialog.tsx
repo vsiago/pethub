@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Plus, Check, X, Loader2, ChevronRight, ChevronLeft, AlertCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
-import type { Tenant, CreateTenantRequest } from "@/types/tenant"
+import type { Tenant } from "@/types/tenant"
 
 interface CreateLojaDialogProps {
   onLojaCreated: (loja: Tenant) => void

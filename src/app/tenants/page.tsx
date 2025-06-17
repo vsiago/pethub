@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import axios from "axios"
+import axios, { isAxiosError } from "axios"
 import { AdminHeader } from "@/components/admin-header"
 import { AdminStats } from "@/components/admin-stats"
 import { LojasList } from "@/components/lojas-list"
@@ -18,22 +18,28 @@ export default function LojasAdminPage() {
     fetchLojas()
   }, [])
 
-  const fetchLojas = async () => {
-    try {
-      setLoading(true)
-      const response = await axios.get("http://localhost:5000/api/tenant")
-      setLojas(Array.isArray(response.data) ? response.data : [])
-      setError("")
-    } catch (err: any) {
+const fetchLojas = async () => {
+  try {
+    setLoading(true)
+
+    const response = await axios.get("http://localhost:5000/api/tenant")
+    setLojas(Array.isArray(response.data) ? response.data : [])
+    setError("")
+  } catch (err: unknown) {
+    if (isAxiosError(err)) {
       if (err.response?.status === 404) {
         setLojas([])
       } else {
         setError("Erro ao carregar lojas. Tente novamente.")
       }
-    } finally {
-      setLoading(false)
+    } else {
+      setError("Erro inesperado.")
     }
+  } finally {
+    setLoading(false)
   }
+}
+
 
   const handleLojaCreated = (novaLoja: Tenant) => {
     setLojas((prev) => [...prev, novaLoja])

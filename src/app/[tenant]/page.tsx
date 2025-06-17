@@ -10,7 +10,7 @@ import { ComingSoonSection } from "@/components/coming-soon-section"
 import { AboutSection } from "@/components/about-section"
 import { Footer } from "@/components/footer"
 
-export default function tenantPage() {
+export default function TenantPage() {
   const params = useParams()
   const tenant = params?.tenant as string
   const [data, setData] = useState<Tenant | null>(null)
