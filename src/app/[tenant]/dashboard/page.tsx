@@ -2,12 +2,12 @@
 
 import { useParams } from "next/navigation"
 import { useEffect, useState } from "react"
-import axios from "axios"
 import type { Tenant } from "@/types/tenant"
 import { ProtectedRoute } from "@/components/protected-route"
 import { TenantLayout } from "@/components/tenant-layout"
 import { TenantDashboard } from "@/components/tenant-dashboard"
 import { TenantThemeProvider } from "@/components/theme-provider-tenant"
+import { getTenantBySlug } from "@/services/tenantService"
 
 export default function TenantDashboardPage() {
   const params = useParams()
@@ -18,16 +18,18 @@ export default function TenantDashboardPage() {
   useEffect(() => {
     if (!tenant) return
 
-    axios
-      .get(`http://localhost:5000/api/tenant/${tenant}`)
-      .then((res) => {
-        setData(res.data)
-        setLoading(false)
-      })
-      .catch(() => {
+    const fetchTenant = async () => {
+      try {
+        const tenantData = await getTenantBySlug(tenant)
+        setData(tenantData)
+      } catch (error) {
         setData(null)
+      } finally {
         setLoading(false)
-      })
+      }
+    }
+
+    fetchTenant()
   }, [tenant])
 
   if (loading) {

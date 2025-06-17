@@ -2,37 +2,39 @@
 
 import { useParams } from "next/navigation"
 import { useEffect, useState } from "react"
-import axios from "axios"
 import type { Tenant } from "@/types/tenant"
 import { TenantThemeProvider } from "@/components/theme-provider-tenant"
 import { TenantLoginForm } from "@/components/tenant-login-form"
+import { getTenantBySlug } from "@/services/tenantService"
 
 export default function TenantLoginPage() {
   const params = useParams()
-  const tenant = params?.tenant as string
+  const tenantSlug = params?.tenant as string
   const [data, setData] = useState<Tenant | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (!tenant) return
+    if (!tenantSlug) return
 
-    axios
-      .get(`http://localhost:5000/api/tenant/${tenant}`)
-      .then((res) => {
-        setData(res.data)
-        setLoading(false)
-      })
-      .catch(() => {
+    const fetchTenant = async () => {
+      try {
+        const tenantData = await getTenantBySlug(tenantSlug)
+        setData(tenantData)
+      } catch {
         setData(null)
+      } finally {
         setLoading(false)
-      })
-  }, [tenant])
+      }
+    }
+
+    fetchTenant()
+  }, [tenantSlug])
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center space-y-4">
-          <div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto" />
           <p className="text-gray-600">Carregando...</p>
         </div>
       </div>
@@ -44,7 +46,9 @@ export default function TenantLoginPage() {
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center space-y-4">
           <h1 className="text-2xl font-bold text-gray-900">Loja não encontrada</h1>
-          <p className="text-gray-600">A loja "{tenant}" não existe ou não está disponível.</p>
+          <p className="text-gray-600">
+            A loja "{tenantSlug}" não existe ou não está disponível.
+          </p>
         </div>
       </div>
     )

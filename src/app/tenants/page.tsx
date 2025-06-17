@@ -1,13 +1,14 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import axios, { isAxiosError } from "axios"
+import { isAxiosError } from "axios"
 import { AdminHeader } from "@/components/admin-header"
 import { AdminStats } from "@/components/admin-stats"
 import { LojasList } from "@/components/lojas-list"
 import { CreateLojaDialog } from "@/components/create-loja-dialog"
 import { Loader2 } from "lucide-react"
 import type { Tenant } from "@/types/tenant"
+import { getAllTenants } from "@/services/tenantService" // ✅ import do service
 
 export default function LojasAdminPage() {
   const [lojas, setLojas] = useState<Tenant[]>([])
@@ -18,28 +19,27 @@ export default function LojasAdminPage() {
     fetchLojas()
   }, [])
 
-const fetchLojas = async () => {
-  try {
-    setLoading(true)
+  const fetchLojas = async () => {
+    try {
+      setLoading(true)
 
-    const response = await axios.get("http://localhost:5000/api/tenant")
-    setLojas(Array.isArray(response.data) ? response.data : [])
-    setError("")
-  } catch (err: unknown) {
-    if (isAxiosError(err)) {
-      if (err.response?.status === 404) {
-        setLojas([])
+      const data = await getAllTenants()
+      setLojas(Array.isArray(data) ? data : [])
+      setError("")
+    } catch (err: unknown) {
+      if (isAxiosError(err)) {
+        if (err.response?.status === 404) {
+          setLojas([])
+        } else {
+          setError("Erro ao carregar lojas. Tente novamente.")
+        }
       } else {
-        setError("Erro ao carregar lojas. Tente novamente.")
+        setError("Erro inesperado.")
       }
-    } else {
-      setError("Erro inesperado.")
+    } finally {
+      setLoading(false)
     }
-  } finally {
-    setLoading(false)
   }
-}
-
 
   const handleLojaCreated = (novaLoja: Tenant) => {
     setLojas((prev) => [...prev, novaLoja])
